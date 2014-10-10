@@ -1,0 +1,29 @@
+{
+  "name": "npm-lolapi",
+  "version": "0.0.1",
+  "description": "npm lolapi module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Digikid13/lolapi.git"
+  },
+  "keywords": [
+    "lol",
+    "league",
+    "of",
+    "legends",
+    "api"
+  ],
+  "author": "Justin Cruz <Digikid13@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Digikid13/lolapi/issues"
+  },
+  "homepage": "https://github.com/Digikid13/lolapi",
+  "dependencies": {
+    "request": "^2.45.0"
+  }
+}
