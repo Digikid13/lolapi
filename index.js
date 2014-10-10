@@ -128,14 +128,79 @@ function lolapi(options) {
       var url = api.url + region + '/v2.2/match/' + id + '?includeTimeline=' + timeline + '&api_key=' + api.key;
 
       ajax(url, cb);
+    },
+
+    history: function(id, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v2.2/matchhistory/' + id + '?api_key=' + api.key;
+
+      ajax(url, cb);
     }
   };
   
-  api.stats = {};
+  api.summoner = {
+    ranked: function(id, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v1.3/stats/by-summoner/' + id + '/ranked?api_key=' + api.key;
+
+      ajax(url, cb);
+    },
+    summary: function(id, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v1.3/stats/by-summoner/' + id + '/summary?api_key=' + api.key;
+
+      ajax(url, cb);
+    },
+    masteries: function(id, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/masteries?api_key=' + api.key;
+
+      ajax(url, cb);
+    },
+    runes: function(id, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/runes?api_key=' + api.key;
+
+      ajax(url, cb);
+    },
+    findNameById: function(id, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/name?api_key=' + api.key;
+
+      ajax(url, cb);
+    },
+    findByName: function(name, cb, region) {
+      region = region || api.region;
+
+      var url = api.url + region + '/v1.4/summoner/by-name/' + name.toString() + '?api_key=' + api.key;
+
+      ajax(url, cb);
+    }
+  };
   
-  api.summoner = {};
-  
-  api.team = {};
+  api.team = {
+    getBySummoner: function(id, cb, region) {
+      region = region || api.region;
+
+      url = api.url + region + '/v2.4/team/by-summoner/' + id.toString() + '?api_key=' + api.key;
+
+      ajax(url, cb);
+    },
+
+    get: function(id, cb, region) {
+      region = region || api.region;
+
+      url = api.url + region + '/v2.4/team/' + id.toString() + '?api_key=' + api.key;
+
+      ajax(url, cb);
+    }
+  };
   
   return api;
 }
@@ -146,7 +211,7 @@ var api = lolapi({
   loc: 'na'
 });
 
-api.match.info(1531452956, function(err, data) {
+api.team.get('TEAM-ab071580-225c-11e2-b2ea-782bcb4d1861', function(err, data) {
   console.log(err, data);
 });
 */
