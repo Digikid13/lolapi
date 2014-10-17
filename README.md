@@ -12,7 +12,6 @@ A Node module for League of Legend's API
 1. [Usage](#Usage)
 1. [Installation](#installation)
 1. [Team](#team)
-1. [Contributing](#contributing)
 
 ## Usage
 
@@ -33,7 +32,3 @@ api.match.info(1531452956, function(err, data) {
 ```
 npm install npm-lolapi --save
 ```
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
