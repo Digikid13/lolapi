@@ -1,219 +1,222 @@
-var request = require('request');
+var Promise = require('bluebird');
+var request = Promise.promisify(require('request'));
 
-function ajax(url, cb) {
-  request(url, function (error, response, body) {
-    if (error) {
-      cb(error);
-    } else if (response.statusCode !== 200) {
-      cb('Request failed: ' + response.statusCode);
-    } else {
-      cb(null, body);
-    }
-  });
+function APICall(url) {
+    return request(url).then(function(resp) {
+        try {
+            return resp[1];
+        } catch(e) {
+            return new Error(e);
+        }
+    });
 }
 
 function lolapi(options) {
-  api = {};
+    api = {};
 
-  api.key = options.key;
-  api.loc = options.loc || 'na';
-  api.url = 'https://na.api.pvp.net/api/lol/';
-  api.region = options.region || 'na';
+    api.key = options.key;
+    api.loc = options.loc || 'na';
+    api.url = 'https://na.api.pvp.net/api/lol/';
+    api.region = options.region || 'na';
 
-  api.champion = {
-    get: function(id, cb, region) {
-      region = region || api.region;
+    api.champion = {
+        get: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v1.2/champion/' + id + '?api_key=' + api.key;
+            var url = api.url + region + '/v1.2/champion/' + id + '?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
+            return APICall(url);
+        },
 
-    getAll: function(cb, region) {
-      region = region || api.region;
-      
-      var url = api.url + region + '/v1.2/champion?api_key=' + api.key;
+        getAll: function(region) {
+            region = region || api.region;
 
-      ajax(url, cb);
-    },
+            var url = api.url + region + '/v1.2/champion?api_key=' + api.key;
 
-    getFree: function(cb, region) {
-      region = region || api.region;
-      
-      var url = api.url + region + '/v1.2/champion?freeToPlay=true&api_key=' + api.key;
+            return APICall(url);
+        },
 
-      ajax(url, cb);
-    },
-  };
+        getFree: function(region) {
+            region = region || api.region;
 
-  api.game = {
-    recent: function(id, cb, region) {
-      region = region || api.region;
+            var url = api.url + region + '/v1.2/champion?freeToPlay=true&api_key=' + api.key;
 
-      var url = api.url + region + '/v1.3/game/by-summoner/' + id + '/recent?api_key=' + api.key;
+            return APICall(url);
+        },
+    };
 
-      ajax(url, cb);
-    }
-  };
+    api.game = {
+        recent: function(id, region) {
+            region = region || api.region;
 
-  api.league = {
-    getSummonerLeague: function(id, cb, region) {
-      region = region || api.region;
+            var url = api.url + region + '/v1.3/game/by-summoner/' + id + '/recent?api_key=' + api.key;
 
-      var url = api.url + region + '/v2.5/league/by-summoner/' + id.toString() + '?api_key=' + api.key;
+            return APICall(url);
+        }
+    };
 
-      ajax(url, cb);
-    },
+    api.league = {
+        getSummonerLeague: function(id, region) {
+            region = region || api.region;
 
-    getSummoner: function(id, cb, region) {
-      region = region || api.region;
+            var url = api.url + region + '/v2.5/league/by-summoner/' + id.toString() + '?api_key=' + api.key;
 
-      var url = api.url + region + '/v2.5/league/by-summoner/' + id.toString() + '/entry?api_key=' + api.key;
-      
-      ajax(url, cb);
-    },
+            return APICall(url);
+        },
 
-    getTeamLeague: function(id, cb, region) {
-      region = region || api.region;
+        getSummoner: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v2.5/league/by-team/' + id.toString() + '?api_key=' + api.key;
+            var url = api.url + region + '/v2.5/league/by-summoner/' + id.toString() + '/entry?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
+            return APICall(url);
+        },
 
-    getTeam: function(id, cb, region) {
-      region = region || api.region;
+        getTeamLeague: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v2.5/league/by-team/' + id.toString() + '/entry?api_key=' + api.key;
+            var url = api.url + region + '/v2.5/league/by-team/' + id.toString() + '?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
+            return APICall(url);
+        },
 
-    getChallenger: function(type, cb, region) {
-      region = region || api.region;
+        getTeam: function(id, region) {
+            region = region || api.region;
 
-      if (type === 'solo') {
-        type = 'RANKED_SOLO_5x5';
-      } else if (type === 'team3') {
-        type = 'RANKED_TEAM_3x3';
-      } else if (type === 'team5') {
-        type = 'RANKED_TEAM_5x5';
-      }
+            var url = api.url + region + '/v2.5/league/by-team/' + id.toString() + '/entry?api_key=' + api.key;
 
-      var url = api.url + region + '/v2.5/league/challenger?type=' + type + '&api_key=' + api.key;
-      
-      ajax(url, cb);
-    },
-  };
-  
-  api.static = {};
+            return APICall(url);
+        },
 
-  api.static = function() {
-    console.log('not implemented');
-  };
-  
-  api.status = function(cb, region) {
-    region = region || api.region;
+        getChallenger: function(type, region) {
+            region = region || api.region;
 
-    var url = 'http://status.leagueoflegends.com/shards/' + region;
-      
-    ajax(url, cb);
-  };
+            if (type === 'solo') {
+              type = 'RANKED_SOLO_5x5';
+            } else if (type === 'team3') {
+              type = 'RANKED_TEAM_3x3';
+            } else if (type === 'team5') {
+              type = 'RANKED_TEAM_5x5';
+            }
 
-  api.match = {
-    info: function(id, cb, timeline, region) {
-      region = region || api.region;
-      timeline = timeline || false;
+            var url = api.url + region + '/v2.5/league/challenger?type=' + type + '&api_key=' + api.key;
 
-      var url = api.url + region + '/v2.2/match/' + id + '?includeTimeline=' + timeline + '&api_key=' + api.key;
+            return APICall(url);
+        },
+    };
+    
+    api.static = {};
 
-      ajax(url, cb);
-    },
+    api.static = function() {
+        console.log('not implemented');
+    };
+    
+    api.status = function(region) {
+        region = region || api.region;
 
-    history: function(id, cb, region) {
-      region = region || api.region;
+        var url = 'http://status.leagueoflegends.com/shards/' + region;
+            
+        return APICall(url);
+    };
 
-      var url = api.url + region + '/v2.2/matchhistory/' + id + '?api_key=' + api.key;
+    api.match = {
+        info: function(id, timeline, region) {
+            region = region || api.region;
+            timeline = timeline || false;
 
-      ajax(url, cb);
-    }
-  };
-  
-  api.summoner = {
-    ranked: function(id, cb, region) {
-      region = region || api.region;
+            var url = api.url + region + '/v2.2/match/' + id + '?includeTimeline=' + timeline + '&api_key=' + api.key;
 
-      var url = api.url + region + '/v1.3/stats/by-summoner/' + id + '/ranked?api_key=' + api.key;
+            return APICall(url);
+        },
 
-      ajax(url, cb);
-    },
-    summary: function(id, cb, region) {
-      region = region || api.region;
+        history: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v1.3/stats/by-summoner/' + id + '/summary?api_key=' + api.key;
+            var url = api.url + region + '/v2.2/matchhistory/' + id + '?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
-    masteries: function(id, cb, region) {
-      region = region || api.region;
+            return APICall(url);
+        }
+    };
+    
+    api.summoner = {
+        ranked: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/masteries?api_key=' + api.key;
+            var url = api.url + region + '/v1.3/stats/by-summoner/' + id + '/ranked?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
-    runes: function(id, cb, region) {
-      region = region || api.region;
+            return APICall(url);
+        },
+        summary: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/runes?api_key=' + api.key;
+            var url = api.url + region + '/v1.3/stats/by-summoner/' + id + '/summary?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
-    findNameById: function(id, cb, region) {
-      region = region || api.region;
+            return APICall(url);
+        },
+        masteries: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/name?api_key=' + api.key;
+            var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/masteries?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
-    findByName: function(name, cb, region) {
-      region = region || api.region;
+            return APICall(url);
+        },
+        runes: function(id, region) {
+            region = region || api.region;
 
-      var url = api.url + region + '/v1.4/summoner/by-name/' + name.toString() + '?api_key=' + api.key;
+            var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/runes?api_key=' + api.key;
 
-      ajax(url, cb);
-    }
-  };
-  
-  api.team = {
-    getBySummoner: function(id, cb, region) {
-      region = region || api.region;
+            return APICall(url);
+        },
+        findNameById: function(id, region) {
+            region = region || api.region;
 
-      url = api.url + region + '/v2.4/team/by-summoner/' + id.toString() + '?api_key=' + api.key;
+            var url = api.url + region + '/v1.4/summoner/' + id.toString() + '/name?api_key=' + api.key;
 
-      ajax(url, cb);
-    },
+            return APICall(url);
+        },
+        findByName: function(name, region) {
+            region = region || api.region;
 
-    get: function(id, cb, region) {
-      region = region || api.region;
+            var url = api.url + region + '/v1.4/summoner/by-name/' + name.toString() + '?api_key=' + api.key;
 
-      url = api.url + region + '/v2.4/team/' + id.toString() + '?api_key=' + api.key;
+            return APICall(url);
+        }
+    };
+    
+    api.team = {
+        getBySummoner: function(id, region) {
+            region = region || api.region;
 
-      ajax(url, cb);
-    }
-  };
-  
-  return api;
+            url = api.url + region + '/v2.4/team/by-summoner/' + id.toString() + '?api_key=' + api.key;
+
+            return APICall(url);
+        },
+
+        get: function(id, region) {
+            region = region || api.region;
+
+            url = api.url + region + '/v2.4/team/' + id.toString() + '?api_key=' + api.key;
+
+            return APICall(url);
+        }
+    };
+    
+    return api;
 }
 
-/*
-var api = lolapi({
-  key: 'test-key-here',
-  loc: 'na'
-});
 
-api.team.get('TEAM-ab071580-225c-11e2-b2ea-782bcb4d1861', function(err, data) {
-  console.log(err, data);
-});
-*/
+// var api = lolapi({
+//     key: 'api-key-here',
+//     loc: 'na'
+// });
+
+// api.team.get('TEAM-ab071580-225c-11e2-b2ea-782bcb4d1861')
+//     .then(function(data) {
+//         console.log(data);
+//     })
+//     .catch(function(e) {
+//         console.error('', e);
+//     });
+
 
 module.exports = lolapi;
